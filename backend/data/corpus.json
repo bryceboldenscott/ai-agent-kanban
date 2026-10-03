@@ -1,0 +1,153 @@
+[
+    {
+        "id": "runbook-checkout",
+        "title": "Checkout Service Runbook",
+        "type": "runbook",
+        "keywords": [
+            "checkout",
+            "cart",
+            "payment",
+            "purchase",
+            "order",
+            "500",
+            "error"
+        ],
+        "content": "## Checkout Service Troubleshooting\n\n1. Check service health: `kubectl get pods -n checkout`\n2. Review recent deployments: `kubectl rollout history deployment/checkout`\n3. Check database connections: `psql -c 'SELECT count(*) FROM pg_stat_activity'`\n4. Review error logs: `kubectl logs -l app=checkout --tail=100`\n5. If needed, rollback: `kubectl rollout undo deployment/checkout`"
+    },
+    {
+        "id": "runbook-auth",
+        "title": "Authentication Service Runbook",
+        "type": "runbook",
+        "keywords": [
+            "auth",
+            "login",
+            "session",
+            "token",
+            "jwt",
+            "401",
+            "403"
+        ],
+        "content": "## Authentication Troubleshooting\n\n1. Verify Redis session store is healthy\n2. Check JWT signing key rotation status\n3. Review auth service logs for rate limiting\n4. Validate OAuth provider connectivity\n5. Check for expired certificates"
+    },
+    {
+        "id": "runbook-database",
+        "title": "Database Performance Runbook",
+        "type": "runbook",
+        "keywords": [
+            "database",
+            "db",
+            "postgres",
+            "mysql",
+            "slow",
+            "query",
+            "timeout",
+            "connection"
+        ],
+        "content": "## Database Performance Issues\n\n1. Check active connections: `SELECT * FROM pg_stat_activity`\n2. Identify slow queries: `SELECT * FROM pg_stat_statements ORDER BY total_time DESC`\n3. Review index usage: `SELECT * FROM pg_stat_user_indexes`\n4. Check replication lag if applicable\n5. Consider scaling read replicas"
+    },
+    {
+        "id": "policy-incident",
+        "title": "Incident Response Policy",
+        "type": "policy",
+        "keywords": [
+            "incident",
+            "outage",
+            "alert",
+            "on-call",
+            "escalation",
+            "sev1",
+            "sev2",
+            "production"
+        ],
+        "content": "## Incident Response Protocol\n\n**Severity Levels:**\n- SEV1: Complete service outage, all hands on deck\n- SEV2: Partial outage, on-call team responds\n- SEV3: Degraded performance, next business day\n\n**Actions:**\n1. Acknowledge alert within 5 minutes\n2. Create incident channel in Slack\n3. Post status update every 15 minutes\n4. Document timeline and root cause\n5. Schedule post-mortem within 48 hours"
+    },
+    {
+        "id": "policy-deploy",
+        "title": "Deployment Policy",
+        "type": "policy",
+        "keywords": [
+            "deploy",
+            "release",
+            "rollout",
+            "canary",
+            "blue-green",
+            "rollback"
+        ],
+        "content": "## Deployment Guidelines\n\n1. All deployments require passing CI/CD pipeline\n2. Use canary deployments for critical services\n3. Monitor error rates for 15 minutes post-deploy\n4. Rollback if error rate exceeds 1%\n5. No deployments on Fridays after 3 PM"
+    },
+    {
+        "id": "guide-ui-components",
+        "title": "UI Component Library Guide",
+        "type": "guide",
+        "keywords": [
+            "ui",
+            "component",
+            "react",
+            "button",
+            "form",
+            "modal",
+            "dark",
+            "theme",
+            "design"
+        ],
+        "content": "## UI Component Standards\n\n**Theme System:**\n- Use CSS variables for theming\n- Support light/dark mode via `prefers-color-scheme`\n- Store user preference in localStorage\n\n**Components:**\n- Button: Primary, Secondary, Danger variants\n- Form inputs with validation states\n- Modal with focus trap and ESC to close"
+    },
+    {
+        "id": "guide-accessibility",
+        "title": "Accessibility Guidelines",
+        "type": "guide",
+        "keywords": [
+            "accessibility",
+            "a11y",
+            "aria",
+            "screen reader",
+            "keyboard",
+            "wcag",
+            "contrast"
+        ],
+        "content": "## Accessibility Requirements\n\n1. All interactive elements must be keyboard accessible\n2. Use semantic HTML elements\n3. Provide alt text for images\n4. Maintain 4.5:1 contrast ratio for text\n5. Test with screen readers (NVDA, VoiceOver)"
+    },
+    {
+        "id": "guide-api",
+        "title": "API Design Standards",
+        "type": "guide",
+        "keywords": [
+            "api",
+            "rest",
+            "endpoint",
+            "http",
+            "json",
+            "request",
+            "response"
+        ],
+        "content": "## API Design Standards\n\n1. Use RESTful conventions\n2. Return appropriate HTTP status codes\n3. Include pagination for list endpoints\n4. Version APIs in the URL (e.g., /v1/users)\n5. Document with OpenAPI/Swagger"
+    },
+    {
+        "id": "runbook-memory",
+        "title": "Memory Issues Runbook",
+        "type": "runbook",
+        "keywords": [
+            "memory",
+            "oom",
+            "heap",
+            "leak",
+            "gc",
+            "out of memory"
+        ],
+        "content": "## Memory Troubleshooting\n\n1. Check pod memory usage: `kubectl top pods`\n2. Review heap dumps if available\n3. Look for memory leak patterns in metrics\n4. Consider increasing memory limits temporarily\n5. Schedule service restart during low traffic"
+    },
+    {
+        "id": "policy-security",
+        "title": "Security Review Policy",
+        "type": "policy",
+        "keywords": [
+            "security",
+            "vulnerability",
+            "cve",
+            "audit",
+            "compliance",
+            "pen test"
+        ],
+        "content": "## Security Requirements\n\n1. All PRs require security review for auth/payment code\n2. Dependencies scanned weekly for CVEs\n3. Secrets must be stored in Vault\n4. PII requires encryption at rest\n5. Quarterly penetration testing required"
+    }
+]

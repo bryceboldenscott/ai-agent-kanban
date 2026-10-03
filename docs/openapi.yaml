@@ -1,0 +1,205 @@
+openapi: 3.0.3
+info:
+  title: AI Agent Kanban - Tool APIs
+  description: |
+    OpenAPI specification for the AI Agent Kanban tool APIs.
+    These tools are used by the orchestrator to process work items through
+    the AI pipeline: Summarize → Context → Plan
+  version: 1.0.0
+  contact:
+    name: IBM Dev Day Hackathon 2026
+servers:
+  - url: http://localhost:3001/api
+    description: Local development server
+
+paths:
+  /tools/summarize:
+    post:
+      operationId: summarizeAndClassify
+      summary: Summarize and Classify Tool
+      description: |
+        Analyzes raw text input and produces a structured classification.
+        Uses IBM watsonx.ai Granite model to detect work item type and severity.
+      tags:
+        - AI Tools
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - rawText
+              properties:
+                rawText:
+                  type: string
+                  description: The raw unstructured text to analyze
+                  example: "Production database is experiencing high CPU usage, queries are timing out for customers."
+      responses:
+        '200':
+          description: Successfully classified the input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SummarizeResult'
+        '400':
+          description: Invalid input
+
+  /tools/context:
+    post:
+      operationId: fetchContext
+      summary: Context Fetch Tool (RAG)
+      description: |
+        Retrieves relevant documentation snippets based on the work item summary.
+        Uses keyword matching against a corpus of runbooks, policies, and docs.
+      tags:
+        - AI Tools
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - summary
+              properties:
+                summary:
+                  type: string
+                  description: The summary to search context for
+                type:
+                  type: string
+                  enum: [incident, feature, task]
+                  description: The type of work item
+      responses:
+        '200':
+          description: Successfully retrieved context snippets
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContextResult'
+
+  /tools/plan:
+    post:
+      operationId: generatePlan
+      summary: Plan Generator Tool
+      description: |
+        Generates an actionable step-by-step plan for the work item.
+        Uses IBM watsonx.ai Granite model with context from RAG.
+      tags:
+        - AI Tools
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - summary
+              properties:
+                summary:
+                  type: string
+                  description: The work item summary
+                contextSnippets:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ContextSnippet'
+                  description: Relevant context from RAG
+                type:
+                  type: string
+                  enum: [incident, feature, task]
+      responses:
+        '200':
+          description: Successfully generated plan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlanResult'
+
+components:
+  schemas:
+    SummarizeResult:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Short title for the work item
+          example: "Production database high CPU"
+        summary:
+          type: string
+          description: Concise summary of the work item
+          example: "Database experiencing high CPU causing query timeouts"
+        type:
+          type: string
+          enum: [incident, feature, task]
+          description: Classification of work item type
+          example: "incident"
+        severity:
+          type: string
+          enum: [high, medium, low]
+          description: Priority/severity level
+          example: "high"
+
+    ContextSnippet:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the snippet
+        title:
+          type: string
+          description: Title of the source document
+          example: "Database Performance Runbook"
+        type:
+          type: string
+          description: Type of document
+          example: "runbook"
+        content:
+          type: string
+          description: The relevant text content
+        relevanceScore:
+          type: number
+          format: float
+          description: How relevant this snippet is (0-1)
+          example: 0.85
+
+    ContextResult:
+      type: object
+      properties:
+        snippets:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContextSnippet'
+          description: List of relevant context snippets
+
+    PlanStep:
+      type: object
+      properties:
+        step:
+          type: integer
+          description: Step number
+          example: 1
+        action:
+          type: string
+          description: Brief action name
+          example: "Check database metrics"
+        description:
+          type: string
+          description: Detailed description of what to do
+          example: "Review CPU, memory, and query metrics in monitoring dashboard"
+
+    PlanResult:
+      type: object
+      properties:
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlanStep'
+          description: Ordered list of action steps
+
+tags:
+  - name: AI Tools
+    description: |
+      The three core AI tools that power the agent pipeline:
+      1. **Summarize & Classify** - Analyzes raw text, detects type and severity
+      2. **Context Fetch (RAG)** - Retrieves relevant runbooks and policies
+      3. **Plan Generator** - Creates actionable step-by-step plans
